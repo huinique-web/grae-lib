@@ -1005,7 +1005,12 @@ function openRequestModal() {
 
 function checkDuplicate() {
   const q = document.getElementById('req-input').value.trim();
-  if (!q) return;
+
+  // 책 제목을 입력하지 않으면 바로 구글폼으로 이동
+  if (!q) {
+    goRequest();
+    return;
+  }
 
   const lower = q.toLowerCase();
   const found = allBooks.filter(b =>
