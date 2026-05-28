@@ -285,7 +285,7 @@
 
     /* ─── MAIN CONTENT ─── */
     main {
-      padding: 0 12px 100px;
+      padding: 0 12px 160px;
     }
 
     /* ─── BOOK CARD ─── */
@@ -396,7 +396,8 @@
       padding: 10px 16px;
       padding-bottom: calc(10px + env(safe-area-inset-bottom));
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
     }
 
     .btn-request {
@@ -417,6 +418,46 @@
     .btn-request:active {
       background: var(--terracotta-dark);
       transform: scale(0.98);
+    }
+
+    /* ─── BAND BUTTON ─── */
+    .btn-band {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #00c73c;
+      color: white;
+      border-radius: 30px;
+      padding: 10px 20px;
+      text-decoration: none;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+      justify-content: center;
+    }
+    .btn-band:active { background: #00a832; transform: scale(0.98); }
+
+    .band-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: white;
+      color: #00c73c;
+      font-size: 14px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-family: Arial, sans-serif;
+      line-height: 1;
+    }
+
+    .band-label {
+      font-family: 'Gowun Batang', serif;
+      font-size: 15px;
+      font-weight: 700;
     }
 
     /* ─── MODAL BASE ─── */
@@ -669,6 +710,10 @@
 
 <!-- ══════════ FOOTER ══════════ -->
 <footer>
+  <a class="btn-band" href="https://band.us/@graelib" target="_blank" rel="noopener">
+    <span class="band-icon">B</span>
+    <span class="band-label">네이버 밴드</span>
+  </a>
   <button class="btn-request" onclick="openRequestModal()">📬 없는 책 신청하기</button>
 </footer>
 
