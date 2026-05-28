@@ -770,11 +770,14 @@ function parseBooks(csvText) {
     const title = getSafeStr(cols[COL.TITLE]);
     if (!title) continue;
 
-    // 청구기호 조합: 별치기호 + 분류기호 + 권차
-    const loc  = getSafeStr(cols[COL.LOCATION]);
-    const cls  = getSafeStr(cols[COL.CLASS]);
-    const clsn = getSafeStr(cols[COL.CLASSNO]);
-    const callNum = [loc, cls, clsn].filter(Boolean).join(' ');
+    // 청구기호 조합: 별치기호 / 분류기호 / 저자기호 / 권차 / 복본기호
+    const loc     = getSafeStr(cols[COL.LOCATION]);
+    const cls     = getSafeStr(cols[COL.CLASS]);
+    const authSym = getSafeStr(cols[COL.AUTHSYM]);
+    const clsn    = getSafeStr(cols[COL.CLASSNO]);
+    const copy    = getSafeStr(cols[COL.COPY]);
+    const copyStr = (copy && copy !== '1') ? 'c.' + copy : '';
+    const callNum = [loc, cls, authSym, clsn, copyStr].filter(Boolean).join(' ');
 
     // 등록일 → Date 객체
     let regDate = null;
