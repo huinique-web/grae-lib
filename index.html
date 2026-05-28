@@ -818,13 +818,55 @@ async function fetchWithProxy(url) {
   return res.text();
 }
 
-async function loadBooks() {
+// ─── CACHE ────────────────────────────────────────────────────────
+const CACHE_KEY = 'grae_books_cache';
+const CACHE_TIME_KEY = 'grae_books_cache_time';
+const CACHE_TTL = 1000 * 60 * 60; // 1시간
+
+function saveCache(text) {
   try {
-    const text = await fetchWithProxy(CSV_URL);
-    allBooks = parseBooks(text);
+    localStorage.setItem(CACHE_KEY, text);
+    localStorage.setItem(CACHE_TIME_KEY, Date.now().toString());
+  } catch (_) {}
+}
+
+function loadCache() {
+  try {
+    const savedTime = parseInt(localStorage.getItem(CACHE_TIME_KEY) || '0');
+    const text = localStorage.getItem(CACHE_KEY);
+    if (!text) return null;
+    return { text, isStale: (Date.now() - savedTime) > CACHE_TTL };
+  } catch (_) { return null; }
+}
+
+async function loadBooks() {
+  const cache = loadCache();
+
+  if (cache) {
+    // 캐시가 있으면 즉시 표시
+    allBooks = parseBooks(cache.text);
     showInitial();
-  } catch (e) {
-    showError();
+
+    // 백그라운드에서 최신 데이터 갱신 (캐시가 오래됐거나 항상 갱신)
+    fetchWithProxy(CSV_URL).then(text => {
+      saveCache(text);
+      const fresh = parseBooks(text);
+      // 권수가 달라졌을 때만 allBooks 교체 (검색 중 방해 안 되도록)
+      if (fresh.length !== allBooks.length) {
+        allBooks = fresh;
+        showInitial();
+      }
+    }).catch(() => {});
+  } else {
+    // 캐시 없으면 로딩 표시 후 fetch
+    try {
+      const text = await fetchWithProxy(CSV_URL);
+      saveCache(text);
+      allBooks = parseBooks(text);
+      showInitial();
+    } catch (e) {
+      showError();
+    }
   }
 }
 
@@ -1047,11 +1089,16 @@ function openAdminModal() {
 }
 
 function refreshData() {
+  // 캐시 삭제 후 강제 새로고침
+  try {
+    localStorage.removeItem(CACHE_KEY);
+    localStorage.removeItem(CACHE_TIME_KEY);
+  } catch (_) {}
   document.getElementById('admin-modal').classList.remove('open');
   document.getElementById('book-list').innerHTML = `
     <div class="state-box">
       <div class="icon"><div class="loading-dots"><span></span><span></span><span></span></div></div>
-      <div class="msg">도서 목록을 불러오는 중이에요</div>
+      <div class="msg">최신 도서 목록을 불러오는 중이에요</div>
     </div>`;
   document.getElementById('stats-bar').style.display = 'none';
   allBooks = [];
